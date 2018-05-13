@@ -44,10 +44,12 @@ def daily(nperiods=4, loc=default_location):
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     data = json.loads(response.text)
+    output = ''
     for i in range(nperiods):
         period = data['properties']['periods'][i]
-        print(period['name'])
-        print(period['detailedForecast'] + '\n')
+        output += period['name'] + '\n'
+        output += period['detailedForecast'] + '\n\n'
+    return output
 
 def hourly(nhours=6, loc=default_location):
     locinfo = locationinfo(loc)
@@ -57,6 +59,7 @@ def hourly(nhours=6, loc=default_location):
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     data = json.loads(response.text)
+    output = ''
     for i in range(nhours):
         period = data['properties']['periods'][i]
         start = strtodatetime(period['startTime'])
@@ -64,10 +67,11 @@ def hourly(nhours=6, loc=default_location):
         timestr = datetime.strftime(start, '%A %B %d %Y %I:%M %p') + '-' + datetime.strftime(end, '%I:%M %p')
         temp = str(period['temperature']) + ' ' + period['temperatureUnit']
         wind = period['windSpeed'] + ' ' + period['windDirection']
-        print(timestr)
-        print(period['shortForecast'])
-        print('Temperature: ' + temp)
-        print('Wind: ' + wind + '\n')
+        output += timestr + '\n'
+        output += period['shortForecast'] + '\n'
+        output += 'Temperature: ' + temp + '\n'
+        output += 'Wind: ' + wind + '\n\n'
+    return output
 
 def current(loc=default_location):
     locinfo = locationinfo(loc)
@@ -87,17 +91,22 @@ def current(loc=default_location):
         feelsLike = temperature
     humidity = props['relativeHumidity']['value']
     windspeed = props['windSpeed']['value'] * 2.23694
-    windgust = props['windGust']['value'] * 2.23694
+    if props['windGust']['value'] != None:
+        windgust = props['windGust']['value'] * 2.23694
+    else:
+        windgust = windspeed
     winddir = degToCompass(props['windDirection']['value'])
     windstr = f"Wind from {winddir} at {windspeed!s:.2} mph with gusts to {windgust!s:.2} mph"
     pressure = props['barometricPressure']['value'] * 0.00029530
-    print('Station ID: ' + station)
-    print('Temperature: %.0f F' % temperature)
-    print('Feels like: %.0f F' % feelsLike)
-    print('Humidity: %.0f %%' % humidity)
-    print(windstr)
-    print('Barometer: %.2f inHg' % pressure)
-    print('Timestamp: ' + timestamp)
+    output = ''
+    output += 'Station ID: ' + station + '\n'
+    output += 'Temperature: %.0f F' % temperature + '\n'
+    output += 'Feels like: %.0f F' % feelsLike + '\n'
+    output += 'Humidity: %.0f %%' % humidity + '\n'
+    output += windstr + '\n'
+    output += 'Barometer: %.2f inHg' % pressure + '\n'
+    output += 'Timestamp: ' + timestamp + '\n'
+    return output
 
 def alerts(loc=default_location):
     locinfo = locationinfo(loc)
@@ -123,12 +132,12 @@ if __name__ == "__main__":
         sys.exit()
     
     if cmd == 'daily':
-        daily()
+        print(daily())
     elif cmd == 'hourly':
-        hourly()
+        print(hourly())
     elif cmd == 'current':
-        current()
+        print(current())
     elif cmd == 'alerts':
-        alerts()
+        print(alerts())
     else:
         print('Please specify a valid command')
