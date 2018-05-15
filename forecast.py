@@ -116,7 +116,11 @@ def alerts(loc=default_location):
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     data = json.loads(response.text)
-    pprint.pprint(data)
+    features = data['features']
+    alert_str = ''
+    for feature in features:
+        alert_str += feature + '\n\n'
+    return alert_str
 
 def radar(loc=default_location):
     locinfo = locationinfo(loc)
