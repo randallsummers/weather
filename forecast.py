@@ -112,14 +112,24 @@ def alerts(loc=default_location):
     locinfo = locationinfo(loc)
     lat = locinfo[0]
     lon = locinfo[1]
-    url = 'https://api.weather.gov/alerts/active?point=' + lat + ',' + lon
+    url = 'https://api.weather.gov/alerts?point=' + lat + ',' + lon
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     data = json.loads(response.text)
     features = data['features']
-    alert_str = ''
+    alert_str = 'Alerts for your location:\n\n'
+    alert_str += '--------------------------------------------------------------------------------\n\n'
     for feature in features:
-        alert_str += feature + '\n\n'
+        props = feature['properties']
+        start = strtodatetime(props['effective'])
+        end = strtodatetime(props['expires'])
+        alert_str += 'Message Type: ' + props['messageType'] + '\n'
+        alert_str += 'Active: ' + datetime.strftime(start, '%A %B %d %Y %I:%M %p') + '-' + datetime.strftime(end, '%I:%M %p') + '\n\n'
+        alert_str += 'Description:\n'
+        alert_str += props['description'] + '\n\n'
+        alert_str += 'Instructions:\n'
+        alert_str += props['instruction'] + '\n\n'
+        alert_str += '--------------------------------------------------------------------------------\n\n'
     return alert_str
 
 def radar(loc=default_location):
