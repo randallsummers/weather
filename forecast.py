@@ -1,21 +1,18 @@
-#! /usr/bin/python3
+#! python3
 
 import sys, os
-import shelve
+import importlib
 import requests
 import json
 from datetime import datetime
 import dateutil.parser
 import pprint
 
-conf_file = os.path.join(os.path.dirname(__file__),'config')
-shelf = shelve.open(conf_file)
-user_agent = shelf['uagent']
-default_location = (str(shelf['lat']), str(shelf['lon']), shelf['obsstation'], shelf['radarstation'])
-shelf.close()
+conf_file = os.path.join(os.path.dirname(__file__),'config.py')
+config = importlib.import_module('config', conf_file)
 
 headers = {
-    'User-Agent': user_agent
+    'User-Agent': config.uagent
 }
 
 def strtodatetime(s):
@@ -26,20 +23,18 @@ def degToCompass(num):
     arr=["N","NNE","NE","ENE","E","ESE", "SE", "SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"]
     return arr[(val % 16)]
 
-def locationinfo(location):
-    if type(location) is tuple:
-        if len(location) == 4:
-            return location
-        elif len(location) == 2:
-            # Find station and return (lat, lon, obsstation, radarstation)
-            # Find and return (lat, lon, obsstation, radarstation)
-            return location
-    return location
+def getlatlon(loc):
+    return 1, 2
 
-def daily(nperiods=4, loc=default_location):
-    locinfo = locationinfo(loc)
-    lat = locinfo[0]
-    lon = locinfo[1]
+def getobsstation(loc):
+    return config.obsstation
+
+def daily(nperiods=4, loc=None):
+    if loc is None:
+        lat = config.lat
+        lon = config.lon
+    else:
+        lat, lon = getlatlon(loc)
     url = 'https://api.weather.gov/points/' + lat + ',' + lon + '/forecast'
     response = requests.get(url, headers=headers)
     response.raise_for_status()
@@ -51,10 +46,12 @@ def daily(nperiods=4, loc=default_location):
         output += period['detailedForecast'] + '\n\n'
     return output
 
-def hourly(nhours=6, loc=default_location):
-    locinfo = locationinfo(loc)
-    lat = locinfo[0]
-    lon = locinfo[1]
+def hourly(nhours=6, loc=None):
+    if loc is None:
+        lat = config.lat
+        lon = config.lon
+    else:
+        lat, lon = getlatlon(loc)
     url = 'https://api.weather.gov/points/' + lat + ',' + lon + '/forecast/hourly'
     response = requests.get(url, headers=headers)
     response.raise_for_status()
@@ -73,9 +70,11 @@ def hourly(nhours=6, loc=default_location):
         output += 'Wind: ' + wind + '\n\n'
     return output
 
-def current(loc=default_location):
-    locinfo = locationinfo(loc)
-    station = locinfo[2]
+def current(loc=None):
+    if loc is None:
+        station = config.obsstation
+    else:
+        station = getobsstation(loc)
     url = 'https://api.weather.gov/stations/' + station + '/observations/current'
     response = requests.get(url, headers=headers)
     response.raise_for_status()
@@ -108,10 +107,12 @@ def current(loc=default_location):
     output += 'Timestamp: ' + timestamp + '\n'
     return output
 
-def alerts(loc=default_location):
-    locinfo = locationinfo(loc)
-    lat = locinfo[0]
-    lon = locinfo[1]
+def alerts(loc=None):
+    if loc is None:
+        lat = config.lat
+        lon = config.lon
+    else:
+        lat, lon = getlatlon(loc)
     url = 'https://api.weather.gov/alerts?point=' + lat + ',' + lon
     response = requests.get(url, headers=headers)
     response.raise_for_status()
@@ -132,9 +133,8 @@ def alerts(loc=default_location):
         alert_str += '--------------------------------------------------------------------------------\n\n'
     return alert_str
 
-def radar(loc=default_location):
-    locinfo = locationinfo(loc)
-    radarstation = locinfo[3]
+def radar(loc=None):
+    return False
     # TODO: Figure out how to view NWS radar
     # Local radar is KTLX
 

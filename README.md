@@ -1,15 +1,31 @@
-To use forecast.py, you need to use python's shelve module to
-create a config file with the default location information the
-script should use when retreiving forecast information. That is,
-run the following in a python shell in the directory the module
-will live in:
+# forecast.py
+
+To setup forecast.py, you simply need to create a file named
+'config.py' with the following contents:
 
 ~~~~
-import shelve
-shelf = shelve.open('config')
-shelf['lat'] = <your latitude>
-shelf['lon'] = <your longitude>
-shelf['obsstation'] = <your nearest NWS observation station>
-shelf['radarstation'] = <your nearest NWS radar station>
-shelf.close()
+uagent = 'Some user agent string'
+lat = 'Your latitutde as a string'
+lon = 'Your longitude as a string'
+obsstation = 'Your nearest NWS observation station'
+radarstation = 'Your nearest NWS radar station'
 ~~~~
+
+You can then import forecast.py as a module and call the functions,
+i.e.
+
+~~~~
+from weather import forecast
+print(forecast.daily())
+~~~~
+
+Or you can use forecast.py as a command line script, i.e.
+
+~~~~
+forecast.py daily
+~~~~
+
+## Dependencies
+
+Make sure your python environment can import all modules listed at the
+top of forecast.py
