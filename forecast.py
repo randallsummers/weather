@@ -6,7 +6,7 @@ import requests
 import json
 from datetime import datetime
 import dateutil.parser
-import pprint
+from geopy.geocoders import Nominatim
 
 conf_file = os.path.join(os.path.dirname(__file__),'config.py')
 config = importlib.import_module('config', conf_file)
@@ -24,12 +24,14 @@ def degToCompass(num):
     return arr[(val % 16)]
 
 def getlatlon(loc):
-    return 1, 2
+    geolocator = Nominatim()
+    coords = geolocator.geocode(loc)
+    return (str(coords.latitude), str(coords.longitude))
 
 def getobsstation(loc):
     return config.obsstation
 
-def daily(nperiods=4, loc=None):
+def daily(loc=None, nperiods=4):
     if loc is None:
         lat = config.lat
         lon = config.lon
@@ -46,7 +48,7 @@ def daily(nperiods=4, loc=None):
         output += period['detailedForecast'] + '\n\n'
     return output
 
-def hourly(nhours=6, loc=None):
+def hourly(loc=None, nhours=6):
     if loc is None:
         lat = config.lat
         lon = config.lon
