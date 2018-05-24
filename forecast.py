@@ -7,6 +7,7 @@ import json
 from datetime import datetime
 import dateutil.parser
 from geopy.geocoders import Nominatim
+import pprint
 
 conf_file = os.path.join(os.path.dirname(__file__),'config.py')
 config = importlib.import_module('config', conf_file)
@@ -29,7 +30,13 @@ def getlatlon(loc):
     return (str(coords.latitude), str(coords.longitude))
 
 def getobsstation(loc):
-    return config.obsstation
+    lat, lon = getlatlon(loc)
+    url = 'https://api.weather.gov/points/' + lat + ',' + lon + '/stations'
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    features = json.loads(response.text)['features']
+    station_properties = features[0]['properties']
+    return station_properties['stationIdentifier']
 
 def daily(loc=None, nperiods=4):
     if loc is None:
