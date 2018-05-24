@@ -7,7 +7,7 @@ import json
 from datetime import datetime
 import dateutil.parser
 from geopy.geocoders import Nominatim
-import pprint
+import argparse
 
 conf_file = os.path.join(os.path.dirname(__file__),'config.py')
 config = importlib.import_module('config', conf_file)
@@ -148,19 +148,27 @@ def radar(loc=None):
     # Local radar is KTLX
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        cmd = sys.argv[1]
-    else:
-        print('Please specify a command')
-        sys.exit()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('forecast_type',
+                        choices=['daily', 'hourly', 'current', 'alerts'],
+                        help='Chooses the weather data to retreive.')
+    parser.add_argument('-l', '--location',
+                        help='Selects the location to retreive weather data for')
+    parser.add_argument('-n', '--nperiods', type=int,
+                        help='Sets the number of periods to retreive data for. Only affects daily and hourly forecast retreival.')
+    args = parser.parse_args()
     
-    if cmd == 'daily':
-        print(daily())
-    elif cmd == 'hourly':
-        print(hourly())
-    elif cmd == 'current':
-        print(current())
-    elif cmd == 'alerts':
-        print(alerts())
+    if args.forecast_type == 'daily':
+        if args.nperiods is None:
+            args.nperiods = 4
+        print(daily(loc=args.location, nperiods=args.nperiods))
+    elif args.forecast_type == 'hourly':
+        if args.nperiods is None:
+            args.nperiods = 6
+        print(hourly(loc=args.location, nhours=args.nperiods))
+    elif args.forecast_type == 'current':
+        print(current(loc=args.location))
+    elif args.forecast_type == 'alerts':
+        print(alerts(loc=args.location))
     else:
         print('Please specify a valid command')
