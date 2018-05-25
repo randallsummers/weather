@@ -25,6 +25,13 @@ Or you can use forecast.py as a command line script, i.e.
 forecast.py daily
 ~~~~
 
+forecast.py supports several command line arguments, which are
+described by calling
+
+~~~~
+forecast.py -h
+~~~~
+
 ## Dependencies
 
 Make sure your python environment can import all modules listed at the
