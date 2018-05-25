@@ -1,5 +1,16 @@
 #! python3
 
+"""
+A module for retreiving information about the weather
+using python.
+
+Important methods:
+- daily
+- hourly
+- current
+- alerts
+"""
+
 import sys, os
 import importlib
 import requests
@@ -39,6 +50,24 @@ def getobsstation(loc):
     return station_properties['stationIdentifier']
 
 def daily(loc=None, nperiods=4):
+    """
+    A function that retreives the National Weather Service's
+    daily forecast for a location.
+    
+    Parameters
+    ----------
+    loc : string
+        The location to retreive the forecast for. If no
+        location is specified, the default location is used.
+    nperiods: int
+        The number of periods to retreive the forecast for.
+        Defaults to 4.
+    
+    Returns
+    -------
+    string
+        A string containing the forecast data requested.
+    """
     if loc is None:
         lat = config.lat
         lon = config.lon
@@ -56,6 +85,24 @@ def daily(loc=None, nperiods=4):
     return output
 
 def hourly(loc=None, nhours=6):
+    """
+    A function that retreives the National Weather Service's
+    hourly forecast for a location.
+    
+    Parameters
+    ----------
+    loc : string
+        The location to retreive the forecast for. If no
+        location is specified, the default location is used.
+    nhours: int
+        The number of hours to retreive the forecast for.
+        Defaults to 6.
+    
+    Returns
+    -------
+    string
+        A string containing the forecast data requested.
+    """
     if loc is None:
         lat = config.lat
         lon = config.lon
@@ -80,6 +127,23 @@ def hourly(loc=None, nhours=6):
     return output
 
 def current(loc=None):
+    """
+    A function that retreives the most recent weather
+    observations made at the NWS observation station
+    nearest the location specified.
+    
+    Parameters
+    ----------
+    loc : string
+        The location to retreive the current weather conditions for.
+        If no location is specified, the default observation station
+        is used.
+    
+    Returns
+    -------
+    string
+        A string containing the current weather conditions.
+    """
     if loc is None:
         station = config.obsstation
     else:
@@ -117,6 +181,21 @@ def current(loc=None):
     return output
 
 def alerts(loc=None):
+    """
+    A function that retreives any National Weather Service alerts
+    for a location
+    
+    Parameters
+    ----------
+    loc : string
+        The location to retreive the current weather conditions for.
+        If no location is specified, the default location is used.
+    
+    Returns
+    -------
+    string
+        A string containing the alerts.
+    """
     if loc is None:
         lat = config.lat
         lon = config.lon
